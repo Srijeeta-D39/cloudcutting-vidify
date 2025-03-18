@@ -26,6 +26,7 @@ const VideoEditor = ({ videoUrl, fileName, onSave }: VideoEditorProps) => {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
+  const [videoError, setVideoError] = useState<string | null>(null);
   
   // Editor state
   const [activeTab, setActiveTab] = useState('trim');
@@ -40,14 +41,34 @@ const VideoEditor = ({ videoUrl, fileName, onSave }: VideoEditorProps) => {
     if (!video) return;
     
     const handleLoadedMetadata = () => {
+      console.log("Video metadata loaded successfully");
       setDuration(video.duration);
       setTrimEnd(100); // Reset trim end to 100% when new video loads
+      setVideoError(null);
+    };
+    
+    const handleError = (e: Event) => {
+      console.error("Video error:", e);
+      setVideoError("Failed to load video. Please check the video URL or format.");
+      toast({
+        title: "Video Error",
+        description: "Could not load the video. The format might be unsupported.",
+        variant: "destructive"
+      });
     };
     
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    video.addEventListener('error', handleError);
+    
+    // Make sure the video source is set correctly
+    if (video.src !== videoUrl) {
+      video.src = videoUrl;
+      video.load();
+    }
     
     return () => {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('error', handleError);
     };
   }, [videoUrl]);
   
@@ -73,9 +94,15 @@ const VideoEditor = ({ videoUrl, fileName, onSave }: VideoEditorProps) => {
     if (!video) return;
     
     if (isPlaying) {
+      console.log("Attempting to play video");
       video.play().catch(error => {
         console.error('Error playing video:', error);
         setIsPlaying(false);
+        toast({
+          title: "Playback Error",
+          description: "Could not play the video. Please try again.",
+          variant: "destructive"
+        });
       });
     } else {
       video.pause();
@@ -195,12 +222,22 @@ const VideoEditor = ({ videoUrl, fileName, onSave }: VideoEditorProps) => {
       {/* Video Preview */}
       <Card className="overflow-hidden bg-black rounded-lg shadow-lg">
         <div className="relative aspect-video">
+          {videoError ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-white bg-black/90 p-4">
+              <div className="text-destructive text-lg mb-2">Error loading video</div>
+              <div className="text-sm text-center max-w-md">{videoError}</div>
+            </div>
+          ) : null}
           <video
             ref={videoRef}
-            src={videoUrl}
             className="absolute inset-0 w-full h-full"
             onEnded={() => setIsPlaying(false)}
-          />
+            controls={false}
+            preload="metadata"
+          >
+            <source src={videoUrl} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
         </div>
         
         {/* Video Controls */}

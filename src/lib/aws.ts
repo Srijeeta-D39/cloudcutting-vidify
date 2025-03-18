@@ -1,4 +1,3 @@
-
 // This is a mock implementation for demonstration purposes
 // In a real application, this would use AWS SDK to interface with S3, Lambda, etc.
 
@@ -84,13 +83,13 @@ export const listVideos = async (): Promise<any[]> => {
 export const getVideo = async (id: string): Promise<any> => {
   // In a real implementation, this would fetch a specific video from S3 or DynamoDB
   
-  // Return mock data
+  // Return mock data with a reliable video URL for testing
   return {
     id,
     title: `Video ${id}`,
-    videoUrl: 'https://storage.googleapis.com/web-dev-assets/video-and-source-tags/chrome.mp4',
+    videoUrl: 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4', // Short sample video
     thumbnail: '/placeholder.svg',
-    duration: 180,
+    duration: 5,
     createdAt: new Date().toISOString(),
     status: 'ready',
   };
