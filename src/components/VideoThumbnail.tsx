@@ -89,7 +89,7 @@ const VideoThumbnail = ({
         <div className={`absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity duration-300 ${
           isHovered ? 'opacity-100' : 'opacity-0'
         }`}>
-          <Link to={`/editor/${id}`}>
+          <Link to={`/editor?id=${id}`}>
             <Button 
               size="icon" 
               className="rounded-full h-12 w-12 bg-white/30 backdrop-blur-md hover:bg-white/50"
